@@ -1,4 +1,7 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+
 import '../dashboard/dashboard_screen.dart';
 import 'forgot_password_screen.dart';
 import 'register_screen.dart';
@@ -34,6 +37,7 @@ class _LoginScreenState extends State<LoginScreen> {
     return RegExp(r'^[\w\.\-+]+@[\w\-]+(\.[\w\-]+)+$').hasMatch(e);
   }
 
+  // --- INTEGRASI HTTP API NESTJS ---
   Future<void> _login() async {
     final email = _emailC.text.trim();
     final pass = _passC.text;
@@ -45,39 +49,78 @@ class _LoginScreenState extends State<LoginScreen> {
       return;
     }
 
-    // Cek format email dulu
     if (!_isValidEmail(email)) {
       setState(() => _emailError = true);
       return;
     }
 
-    setState(() => _loading = true);
+    setState(() {
+      _loading = true;
+      _emailError = false;
+      _passError = false;
+    });
 
-    // Simulasi delay request jaringan
-    await Future.delayed(const Duration(seconds: 1));
+    // CATATAN HOST IP:
+    // 1. Android Emulator    -> 'http://10.0.2.2:3000/api'
+    // 2. HP Fisik (Samsung)  -> 'http://<IP_WIFI_LAPTOP>:3000/api' (Contoh: 'http://192.168.1.15:3000/api')
+    const String baseUrl = 'http://192.168.1.7:3000/api';
 
-    if (!mounted) return;
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/auth/login'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'email': email,
+          'password': pass,
+        }),
+      );
 
-    // --- MOCK LOGIN CHECK ---
-    const mockEmail = 'user@gmail.com';
-    const mockPass = '123456';
+      if (!mounted) return;
 
-    if (email == mockEmail && pass == mockPass) {
+      final data = jsonDecode(response.body);
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        setState(() => _loading = false);
+
+        // Ambil nama pengguna dan token dari respon backend NestJS
+        final String userName = data['user']['fullName'] ?? 'Pengguna';
+        // final String token = data['accessToken'] ?? '';
+
+        // Pindah ke Dashboard dengan membawa nama pengguna dari database
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => DashboardScreen(nama: userName),
+          ),
+        );
+      } else {
+        // Sandi/Email salah atau belum verifikasi OTP
+        setState(() {
+          _loading = false;
+          _passError = true;
+        });
+
+        final dynamic rawMsg = data['message'];
+        final String errorMsg =
+            rawMsg is List ? rawMsg.first : (rawMsg ?? 'Login gagal');
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(errorMsg),
+            backgroundColor: _red,
+          ),
+        );
+      }
+    } catch (e) {
+      if (!mounted) return;
       setState(() => _loading = false);
 
-      // Pindah ke dashboard
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => const DashboardScreen(nama: 'Aisyah'),
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Tidak dapat terhubung ke server backend'),
+          backgroundColor: _red,
         ),
       );
-    } else {
-      // Sandi salah -> tampilkan error di bawah kolom sandi
-      setState(() {
-        _loading = false;
-        _passError = true;
-      });
     }
   }
 
@@ -172,7 +215,8 @@ class _LoginScreenState extends State<LoginScreen> {
                         onPressed: () => setState(() => _hide = !_hide),
                       ),
                     ),
-                    if (_passError) _errorText('Kata sandi salah. Coba lagi ya.'),
+                    if (_passError)
+                      _errorText('Kata sandi salah. Coba lagi ya.'),
                     const SizedBox(height: 10),
 
                     // Baris Checkbox & Lupa Sandi
@@ -310,10 +354,9 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  Widget _label(String t) => Text(t,
-      style: const TextStyle(fontSize: 13, color: Color(0xFF374151)));
+  Widget _label(String t) =>
+      Text(t, style: const TextStyle(fontSize: 13, color: Color(0xFF374151)));
 
-  // Pesan error merah dengan ikon, dipakai email dan sandi
   Widget _errorText(String msg) {
     return Padding(
       padding: const EdgeInsets.only(top: 6),
@@ -419,8 +462,8 @@ class _LoginScreenState extends State<LoginScreen> {
       child: OutlinedButton(
         style: OutlinedButton.styleFrom(
           side: const BorderSide(color: Color(0xFFE5E7EB)),
-          shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         ),
         onPressed: () {},
         child: Row(
