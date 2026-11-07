@@ -78,8 +78,12 @@ class CompoundLevelsScreen extends StatelessWidget {
                           ElevatedButton(
                             onPressed: () => Navigator.of(context).push(
                               MaterialPageRoute(
-                                  builder: (_) => WritingLevelScreen(
-                                      kind: kind, level: level)),
+                                builder: (_) => WritingLevelScreen(
+                                  kind: kind,
+                                  level: level,
+                                  totalLevel: WritingData.compoundLevels,
+                                ),
+                              ),
                             ),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: AppColors.purple,

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'login_screen.dart';
+import 'verification_screen.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -12,30 +13,85 @@ class RegisterScreen extends StatefulWidget {
 class _RegisterScreenState extends State<RegisterScreen> {
   static const _green = Color(0xFF22C55E);
   static const _greenLight = Color(0xFF4ADE80);
+  static const _red = Color(0xFFE53935);
 
   final _nameC = TextEditingController();
   final _emailC = TextEditingController();
   final _passC = TextEditingController();
-  bool _hide = true;
+  final _confirmC = TextEditingController();
+
+  bool _hidePass = true;
+  bool _hideConfirm = true;
+
+  String? _nameError;
+  String? _emailError;
+  String? _passError;
+  String? _confirmError;
 
   @override
   void dispose() {
     _nameC.dispose();
     _emailC.dispose();
     _passC.dispose();
+    _confirmC.dispose();
     super.dispose();
   }
 
+  bool _isValidEmail(String e) {
+    return RegExp(r'^[\w\.\-+]+@[\w\-]+(\.[\w\-]+)+$').hasMatch(e);
+  }
+
   void _register() {
-    if (_nameC.text.trim().isEmpty ||
-        _emailC.text.trim().isEmpty ||
-        _passC.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Semua kolom wajib diisi')),
-      );
+    final nama = _nameC.text.trim();
+    final email = _emailC.text.trim();
+    final pass = _passC.text;
+    final confirm = _confirmC.text;
+
+    String? nameErr;
+    String? emailErr;
+    String? passErr;
+    String? confirmErr;
+
+    if (nama.isEmpty) nameErr = 'Nama panggilan wajib diisi.';
+
+    if (email.isEmpty) {
+      emailErr = 'Email orang tua wajib diisi.';
+    } else if (!_isValidEmail(email)) {
+      emailErr = 'Format email belum benar. Contoh: nama@email.com.';
+    }
+
+    if (pass.isEmpty) {
+      passErr = 'Kata sandi wajib diisi.';
+    } else if (pass.length < 8) {
+      passErr = 'Kata sandi minimal 8 karakter.';
+    }
+
+    if (confirm != pass) {
+      confirmErr = 'Kata sandi belum sama. Coba lagi ya.';
+    }
+
+    setState(() {
+      _nameError = nameErr;
+      _emailError = emailErr;
+      _passError = passErr;
+      _confirmError = confirmErr;
+    });
+
+    if (nameErr != null ||
+        emailErr != null ||
+        passErr != null ||
+        confirmErr != null) {
       return;
     }
-    // TODO: panggil AuthProvider untuk mendaftar
+
+    // TODO: panggil AuthProvider untuk mendaftar kalau sudah ada backend.
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => VerificationScreen(email: email, nama: nama),
+      ),
+    );
   }
 
   @override
@@ -55,12 +111,20 @@ class _RegisterScreenState extends State<RegisterScreen> {
               width: double.infinity,
               height: headerH,
               fit: BoxFit.cover,
+              errorBuilder: (_, __, ___) => Container(
+                height: headerH,
+                color: const Color(0xFFBFE3F5),
+              ),
             ),
             Image.asset(
               'assets/images/login2.png',
               width: double.infinity,
               height: headerH,
               fit: BoxFit.cover,
+              errorBuilder: (_, __, ___) => Container(
+                height: headerH,
+                color: const Color(0xFFBFE3F5),
+              ),
             ),
 
             // Kartu form
@@ -80,37 +144,87 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   children: [
                     _tabs(),
                     const SizedBox(height: 16),
-                    _label('Nama'),
+
+                    // Nama panggilan anak
+                    _label('Nama panggilan anak'),
                     const SizedBox(height: 6),
-                    _field(_nameC, 'Masukkan nama'),
+                    _field(
+                      _nameC,
+                      'Masukkan nama panggilan',
+                      error: _nameError != null,
+                      onChanged: (_) {
+                        if (_nameError != null) {
+                          setState(() => _nameError = null);
+                        }
+                      },
+                    ),
+                    if (_nameError != null) _errorText(_nameError!),
                     const SizedBox(height: 12),
-                    _label('Email'),
+
+                    // Email orang tua
+                    _label('Email orang tua'),
                     const SizedBox(height: 6),
-                    _field(_emailC, 'nama@email.com',
-                        keyboard: TextInputType.emailAddress),
+                    _field(
+                      _emailC,
+                      'nama@email.com',
+                      keyboard: TextInputType.emailAddress,
+                      error: _emailError != null,
+                      onChanged: (_) {
+                        if (_emailError != null) {
+                          setState(() => _emailError = null);
+                        }
+                      },
+                    ),
+                    if (_emailError != null) _errorText(_emailError!),
                     const SizedBox(height: 12),
-                    _label('Password'),
+
+                    // Kata sandi
+                    _label('Kata sandi'),
                     const SizedBox(height: 6),
                     _field(
                       _passC,
-                      'Masukkan password',
-                      obscure: _hide,
-                      suffix: IconButton(
-                        icon: Icon(
-                          _hide
-                              ? Icons.visibility_off_outlined
-                              : Icons.visibility_outlined,
-                          size: 18,
-                          color: Colors.grey,
-                        ),
-                        onPressed: () => setState(() => _hide = !_hide),
+                      'Masukkan kata sandi',
+                      obscure: _hidePass,
+                      error: _passError != null,
+                      onChanged: (_) {
+                        if (_passError != null) {
+                          setState(() => _passError = null);
+                        }
+                      },
+                      suffix: _eye(
+                        hide: _hidePass,
+                        onTap: () => setState(() => _hidePass = !_hidePass),
                       ),
                     ),
+                    if (_passError != null) _errorText(_passError!),
+                    const SizedBox(height: 12),
+
+                    // Ulangi kata sandi
+                    _label('Ulangi kata sandi'),
+                    const SizedBox(height: 6),
+                    _field(
+                      _confirmC,
+                      'Ulangi kata sandi',
+                      obscure: _hideConfirm,
+                      error: _confirmError != null,
+                      onChanged: (_) {
+                        if (_confirmError != null) {
+                          setState(() => _confirmError = null);
+                        }
+                      },
+                      suffix: _eye(
+                        hide: _hideConfirm,
+                        onTap: () =>
+                            setState(() => _hideConfirm = !_hideConfirm),
+                      ),
+                    ),
+                    if (_confirmError != null) _errorText(_confirmError!),
                     const SizedBox(height: 16),
+
                     _registerButton(),
                     const SizedBox(height: 10),
                     const Center(
-                      child: Text('Atau',
+                      child: Text('atau',
                           style: TextStyle(color: Colors.grey, fontSize: 12)),
                     ),
                     const SizedBox(height: 10),
@@ -194,27 +308,72 @@ class _RegisterScreenState extends State<RegisterScreen> {
   Widget _label(String t) => Text(t,
       style: const TextStyle(fontSize: 13, color: Color(0xFF374151)));
 
-  Widget _field(TextEditingController c, String hint,
-      {bool obscure = false, Widget? suffix, TextInputType? keyboard}) {
+  Widget _errorText(String msg) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 6),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Icon(Icons.error, size: 14, color: _red),
+          const SizedBox(width: 6),
+          Expanded(
+            child: Text(
+              msg,
+              style: const TextStyle(fontSize: 11, color: _red),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _eye({required bool hide, required VoidCallback onTap}) {
+    return IconButton(
+      icon: Icon(
+        hide ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+        size: 18,
+        color: Colors.grey,
+      ),
+      onPressed: onTap,
+    );
+  }
+
+  Widget _field(
+    TextEditingController c,
+    String hint, {
+    bool obscure = false,
+    bool error = false,
+    Widget? suffix,
+    TextInputType? keyboard,
+    ValueChanged<String>? onChanged,
+  }) {
     return TextField(
       controller: c,
       obscureText: obscure,
       keyboardType: keyboard,
+      onChanged: onChanged,
       style: const TextStyle(fontSize: 14),
       decoration: InputDecoration(
         hintText: hint,
         hintStyle: const TextStyle(color: Colors.grey, fontSize: 14),
         suffixIcon: suffix,
         isDense: true,
+        filled: error,
+        fillColor: error ? const Color(0xFFFEF2F2) : null,
         contentPadding:
             const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: Color(0xFFE5E7EB)),
+          borderSide: BorderSide(
+            color: error ? _red : const Color(0xFFE5E7EB),
+          ),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: _green, width: 1.5),
+          borderSide: BorderSide(
+            color: error ? _red : _green,
+            width: 1.5,
+          ),
         ),
       ),
     );
@@ -222,7 +381,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   Widget _registerButton() {
     return Container(
-      height: 44,
+      height: 46,
       decoration: BoxDecoration(
         gradient: const LinearGradient(colors: [_greenLight, _green]),
         borderRadius: BorderRadius.circular(8),
@@ -251,7 +410,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   Widget _googleButton() {
     return SizedBox(
       width: double.infinity,
-      height: 44,
+      height: 46,
       child: OutlinedButton(
         style: OutlinedButton.styleFrom(
           side: const BorderSide(color: Color(0xFFE5E7EB)),
@@ -271,12 +430,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
             ),
             const SizedBox(width: 12),
             const Flexible(
-              child: Text('Continue with Google',
+              child: Text('Lanjutkan dengan Google',
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                       color: Colors.black87,
-                      fontSize: 15,
-                      fontWeight: FontWeight.w700)),
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600)),
             ),
           ],
         ),

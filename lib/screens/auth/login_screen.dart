@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import '../dashboard/dashboard_screen.dart';
+import 'forgot_password_screen.dart';
 import 'register_screen.dart';
-import 'verification_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -12,12 +13,15 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   static const _green = Color(0xFF22C55E);
   static const _greenLight = Color(0xFF4ADE80);
+  static const _red = Color(0xFFE53935);
 
   final _emailC = TextEditingController();
   final _passC = TextEditingController();
   bool _hide = true;
   bool _remember = false;
   bool _loading = false;
+  bool _emailError = false;
+  bool _passError = false;
 
   @override
   void dispose() {
@@ -26,20 +30,55 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
+  bool _isValidEmail(String e) {
+    return RegExp(r'^[\w\.\-+]+@[\w\-]+(\.[\w\-]+)+$').hasMatch(e);
+  }
+
   Future<void> _login() async {
     final email = _emailC.text.trim();
     final pass = _passC.text;
+
     if (email.isEmpty || pass.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Email dan password wajib diisi')),
       );
       return;
     }
+
+    // Cek format email dulu
+    if (!_isValidEmail(email)) {
+      setState(() => _emailError = true);
+      return;
+    }
+
     setState(() => _loading = true);
 
+    // Simulasi delay request jaringan
     await Future.delayed(const Duration(seconds: 1));
 
-    if (mounted) setState(() => _loading = false);
+    if (!mounted) return;
+
+    // --- MOCK LOGIN CHECK ---
+    const mockEmail = 'user@gmail.com';
+    const mockPass = '123456';
+
+    if (email == mockEmail && pass == mockPass) {
+      setState(() => _loading = false);
+
+      // Pindah ke dashboard
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const DashboardScreen(nama: 'Aisyah'),
+        ),
+      );
+    } else {
+      // Sandi salah -> tampilkan error di bawah kolom sandi
+      setState(() {
+        _loading = false;
+        _passError = true;
+      });
+    }
   }
 
   @override
@@ -76,9 +115,10 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
             ),
 
-                        // Kartu form
+            // Kartu form
             Padding(
-              padding: EdgeInsets.only(top: headerH - overlap, left: 12, right: 12),
+              padding:
+                  EdgeInsets.only(top: headerH - overlap, left: 12, right: 12),
               child: Container(
                 width: double.infinity,
                 padding: const EdgeInsets.fromLTRB(16, 16, 16, 20),
@@ -92,20 +132,35 @@ class _LoginScreenState extends State<LoginScreen> {
                   children: [
                     _buildTabs(),
                     const SizedBox(height: 16),
+
+                    // Email
                     _label('Email'),
                     const SizedBox(height: 6),
                     _field(
                       controller: _emailC,
                       hint: 'nama@email.com',
                       keyboard: TextInputType.emailAddress,
+                      error: _emailError,
+                      onChanged: (_) {
+                        if (_emailError) setState(() => _emailError = false);
+                      },
                     ),
+                    if (_emailError)
+                      _errorText(
+                          'Format email belum benar. Contoh: nama@email.com.'),
                     const SizedBox(height: 12),
-                    _label('Password'),
+
+                    // Kata sandi
+                    _label('Kata sandi'),
                     const SizedBox(height: 6),
                     _field(
                       controller: _passC,
-                      hint: 'Masukkan password',
+                      hint: 'Masukkan kata sandi',
                       obscure: _hide,
+                      error: _passError,
+                      onChanged: (_) {
+                        if (_passError) setState(() => _passError = false);
+                      },
                       suffix: IconButton(
                         icon: Icon(
                           _hide
@@ -117,38 +172,62 @@ class _LoginScreenState extends State<LoginScreen> {
                         onPressed: () => setState(() => _hide = !_hide),
                       ),
                     ),
+                    if (_passError) _errorText('Kata sandi salah. Coba lagi ya.'),
                     const SizedBox(height: 10),
+
+                    // Baris Checkbox & Lupa Sandi
                     Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: Checkbox(
-                            value: _remember,
-                            activeColor: _green,
-                            onChanged: (v) =>
-                                setState(() => _remember = v ?? false),
+                        Flexible(
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: Checkbox(
+                                  value: _remember,
+                                  activeColor: _green,
+                                  onChanged: (v) =>
+                                      setState(() => _remember = v ?? false),
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              const Flexible(
+                                child: Text(
+                                  'Ingat saya',
+                                  style: TextStyle(fontSize: 12),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                        const SizedBox(width: 8),
-                        const Text('Ingat saya',
-                            style: TextStyle(fontSize: 12)),
-                        const Spacer(),
-                        const Text(
-                          'Lupa Sandi?',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: _green,
-                            fontWeight: FontWeight.w600,
+                        GestureDetector(
+                          onTap: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const ForgotPasswordScreen(),
+                            ),
+                          ),
+                          child: const Text(
+                            'Lupa sandi?',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: _green,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                         ),
                       ],
                     ),
+
                     const SizedBox(height: 16),
                     _loginButton(),
                     const SizedBox(height: 10),
                     const Center(
-                      child: Text('Atau',
+                      child: Text('atau',
                           style: TextStyle(color: Colors.grey, fontSize: 12)),
                     ),
                     const SizedBox(height: 10),
@@ -210,19 +289,19 @@ class _LoginScreenState extends State<LoginScreen> {
           Expanded(
             child: GestureDetector(
               onTap: () => Navigator.pushReplacement(
-  context,
-  PageRouteBuilder(
-    pageBuilder: (_, __, ___) => const RegisterScreen(),
-    transitionsBuilder: (_, anim, __, child) =>
-        FadeTransition(opacity: anim, child: child),
-    transitionDuration: const Duration(milliseconds: 250),
-  ),
-),
+                context,
+                PageRouteBuilder(
+                  pageBuilder: (_, __, ___) => const RegisterScreen(),
+                  transitionsBuilder: (_, anim, __, child) =>
+                      FadeTransition(opacity: anim, child: child),
+                  transitionDuration: const Duration(milliseconds: 250),
+                ),
+              ),
               child: Container(
                 padding: const EdgeInsets.symmetric(vertical: 10),
                 alignment: Alignment.center,
-                child: const Text('Daftar',
-                    style: TextStyle(color: Colors.grey)),
+                child:
+                    const Text('Daftar', style: TextStyle(color: Colors.grey)),
               ),
             ),
           ),
@@ -234,32 +313,62 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget _label(String t) => Text(t,
       style: const TextStyle(fontSize: 13, color: Color(0xFF374151)));
 
+  // Pesan error merah dengan ikon, dipakai email dan sandi
+  Widget _errorText(String msg) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 6),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Icon(Icons.error, size: 14, color: _red),
+          const SizedBox(width: 6),
+          Expanded(
+            child: Text(
+              msg,
+              style: const TextStyle(fontSize: 11, color: _red),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _field({
     required TextEditingController controller,
     required String hint,
     bool obscure = false,
+    bool error = false,
     Widget? suffix,
     TextInputType? keyboard,
+    ValueChanged<String>? onChanged,
   }) {
     return TextField(
       controller: controller,
       obscureText: obscure,
       keyboardType: keyboard,
+      onChanged: onChanged,
       style: const TextStyle(fontSize: 14),
       decoration: InputDecoration(
         hintText: hint,
         hintStyle: const TextStyle(color: Colors.grey, fontSize: 14),
         suffixIcon: suffix,
         isDense: true,
+        filled: error,
+        fillColor: error ? const Color(0xFFFEF2F2) : null,
         contentPadding:
             const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: Color(0xFFE5E7EB)),
+          borderSide: BorderSide(
+            color: error ? _red : const Color(0xFFE5E7EB),
+          ),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: _green, width: 1.5),
+          borderSide: BorderSide(
+            color: error ? _red : _green,
+            width: 1.5,
+          ),
         ),
       ),
     );
@@ -303,7 +412,7 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-     Widget _googleButton() {
+  Widget _googleButton() {
     return SizedBox(
       width: double.infinity,
       height: 48,
@@ -320,11 +429,11 @@ class _LoginScreenState extends State<LoginScreen> {
             Image.asset('assets/images/logo google.webp',
                 width: 20, height: 20),
             const SizedBox(width: 12),
-            const Text('Continue with Google',
+            const Text('Lanjutkan dengan Google',
                 style: TextStyle(
                   color: Colors.black87,
-                  fontSize: 15,
-                  fontWeight: FontWeight.w700,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
                 )),
           ],
         ),

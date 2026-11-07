@@ -1,9 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import 'account_created_screen.dart';
+import 'new_password_screen.dart';
+
 class VerificationScreen extends StatefulWidget {
   final String email;
-  const VerificationScreen({super.key, required this.email});
+  final String nama;
+  final bool resetSandi;
+  const VerificationScreen({
+    super.key,
+    required this.email,
+    this.nama = '',
+    this.resetSandi = false,
+  });
 
   @override
   State<VerificationScreen> createState() => _VerificationScreenState();
@@ -12,9 +22,15 @@ class VerificationScreen extends StatefulWidget {
 class _VerificationScreenState extends State<VerificationScreen> {
   static const _green = Color(0xFF22C55E);
   static const _greenLight = Color(0xFF4ADE80);
+  static const _navy = Color(0xFF2A1B6B);
+  static const _red = Color(0xFFE53935);
+
+  // Kode benar untuk demo (ganti ke server kalau sudah ada backend)
+  static const _kodeBenar = '3156';
 
   final _controllers = List.generate(4, (_) => TextEditingController());
   final _nodes = List.generate(4, (_) => FocusNode());
+  bool _error = false;
 
   String get _code => _controllers.map((c) => c.text).join();
   bool get _complete => _code.length == 4;
@@ -33,15 +49,48 @@ class _VerificationScreenState extends State<VerificationScreen> {
   void _onChanged(int i, String v) {
     if (v.isNotEmpty && i < 3) _nodes[i + 1].requestFocus();
     if (v.isEmpty && i > 0) _nodes[i - 1].requestFocus();
+    if (_error) _error = false;
     setState(() {});
   }
 
-  void _verify() {
-    // TODO: cek kode _code ke AuthProvider / server, lalu pindah layar
+  Future<void> _verify() async {
+    // TODO: cek kode ke AuthProvider / server kalau sudah ada backend.
+    if (_code != _kodeBenar) {
+      setState(() => _error = true);
+      return;
+    }
+
+    if (!mounted) return;
+
+    // Alur lupa sandi -> buat sandi baru
+    if (widget.resetSandi) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const NewPasswordScreen()),
+      );
+      return;
+    }
+
+    // Alur daftar -> akun sudah jadi
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(
+        builder: (_) => AccountCreatedScreen(
+          nama: widget.nama.isEmpty ? 'Aisyah' : widget.nama,
+        ),
+      ),
+      (route) => false,
+    );
   }
 
   void _resend() {
-    // TODO: kirim ulang kode
+    // kirim ulang kode
+    for (final c in _controllers) {
+      c.clear();
+    }
+    setState(() => _error = false);
+    _nodes[0].requestFocus();
+
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Kode baru telah dikirim')),
     );
@@ -49,6 +98,10 @@ class _VerificationScreenState extends State<VerificationScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final petunjuk = widget.resetSandi
+        ? '.\nMasukkan 4 digit kode untuk membuat sandi baru.'
+        : '.\nMasukkan 4 digit kode untuk mengonfirmasi akunmu.';
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -62,19 +115,29 @@ class _VerificationScreenState extends State<VerificationScreen> {
                 customBorder: const CircleBorder(),
                 onTap: () => Navigator.maybePop(context),
                 child: Container(
-                  width: 36,
-                  height: 36,
+                  width: 40,
+                  height: 40,
                   decoration: const BoxDecoration(
                     color: Color(0xFFF1F3F5),
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(Icons.chevron_left, size: 22),
+                  child: const Icon(Icons.chevron_left, size: 24),
                 ),
               ),
               const SizedBox(height: 28),
-              const Text('Periksa emailmu',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700)),
+
+              // Judul
+              const Text(
+                'Periksa emailmu',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w800,
+                  color: _navy,
+                ),
+              ),
               const SizedBox(height: 8),
+
+              // Petunjuk
               Text.rich(
                 TextSpan(
                   style: const TextStyle(
@@ -86,19 +149,41 @@ class _VerificationScreenState extends State<VerificationScreen> {
                       style: const TextStyle(
                           color: Colors.black87, fontWeight: FontWeight.w700),
                     ),
-                    const TextSpan(
-                        text: '.\nMasukkan 4 digit kode untuk membuat sandi baru.'),
+                    TextSpan(text: petunjuk),
                   ],
                 ),
               ),
               const SizedBox(height: 24),
+
+              // Kotak kode
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: List.generate(4, _box),
               ),
+
+              // Pesan error
+              if (_error)
+                const Padding(
+                  padding: EdgeInsets.only(top: 10),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Icon(Icons.error, size: 14, color: _red),
+                      SizedBox(width: 6),
+                      Expanded(
+                        child: Text(
+                          'Kode salah. Cek email lagi atau kirim ulang kode.',
+                          style: TextStyle(fontSize: 11, color: _red),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               const SizedBox(height: 20),
+
               _verifyButton(),
               const SizedBox(height: 16),
+
               Center(
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
@@ -140,13 +225,20 @@ class _VerificationScreenState extends State<VerificationScreen> {
         decoration: InputDecoration(
           counterText: '',
           contentPadding: EdgeInsets.zero,
+          filled: _error,
+          fillColor: _error ? const Color(0xFFFEF2F2) : null,
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
-            borderSide: const BorderSide(color: Color(0xFFE5E7EB)),
+            borderSide: BorderSide(
+              color: _error ? _red : const Color(0xFFE5E7EB),
+            ),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
-            borderSide: const BorderSide(color: _green, width: 1.5),
+            borderSide: BorderSide(
+              color: _error ? _red : _green,
+              width: 1.5,
+            ),
           ),
         ),
       ),
@@ -155,17 +247,26 @@ class _VerificationScreenState extends State<VerificationScreen> {
 
   Widget _verifyButton() {
     return Opacity(
-      opacity: _complete ? 1 : 0.5,
+      opacity: _complete ? 1 : 0.4,
       child: Container(
-        height: 46,
+        height: 48,
         decoration: BoxDecoration(
           gradient: const LinearGradient(colors: [_greenLight, _green]),
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: _complete
+              ? const [
+                  BoxShadow(
+                    color: Color(0x4022C55E),
+                    blurRadius: 8,
+                    offset: Offset(0, 3),
+                  ),
+                ]
+              : null,
         ),
         child: Material(
           color: Colors.transparent,
           child: InkWell(
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(12),
             onTap: _complete ? _verify : null,
             child: const Center(
               child: Text('Verifikasi kode',
