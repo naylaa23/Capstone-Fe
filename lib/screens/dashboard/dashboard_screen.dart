@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../writing/writing_home_screen.dart';
-import '../writing/kuis_level_screen.dart';
+import '../writing/kuis/kuis_level_screen.dart';
+import '../writing/membaca/iqro1_screen.dart';
+import '../writing/membaca/iqro3_screen.dart';
 
 class DashboardScreen extends StatelessWidget {
   final String nama;
@@ -16,12 +18,6 @@ class DashboardScreen extends StatelessWidget {
 
   static const String _levelLabel = 'Level 2: Huruf Dasar';
   static const double _levelProgress = 0.4; // 0.0 - 1.0
-
-  void _segeraHadir(BuildContext context, String fitur) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Fitur $fitur segera hadir')),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -81,7 +77,12 @@ class DashboardScreen extends StatelessWidget {
                         subtitle: 'Jilid 1 dan 2, ada suara',
                         icon: const Icon(Icons.menu_book_rounded,
                             size: 40, color: _orange),
-                        onTap: () => _segeraHadir(context, 'Membaca Iqro'),
+                        onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const IqroHalamanScreen(),
+                          ),
+                        ),
                       ),
                       const SizedBox(height: 16),
                       _MenuCard(

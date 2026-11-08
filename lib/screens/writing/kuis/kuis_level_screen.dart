@@ -1,8 +1,14 @@
 import 'package:flutter/material.dart';
+import 'kuis_intro_screen.dart';
 
-class QuizLevelsScreen extends StatelessWidget {
+class QuizLevelsScreen extends StatefulWidget {
   const QuizLevelsScreen({super.key});
 
+  @override
+  State<QuizLevelsScreen> createState() => _QuizLevelsScreenState();
+}
+
+class _QuizLevelsScreenState extends State<QuizLevelsScreen> {
   static const Color _background = Color(0xFFFFF3D6);
   static const Color _navy = Color(0xFF2A1B6B);
   static const Color _purple = Color(0xFF6C3FD6);
@@ -13,7 +19,10 @@ class QuizLevelsScreen extends StatelessWidget {
 
   // Data contoh (ganti dari ProgressProvider nanti)
   static const int _jumlahBintang = 12;
-  static const int _levelTerbuka = 1; // level 1..N sudah terbuka
+  static const int _jumlahLevel = 10;
+
+  // Level tertinggi yang sudah terbuka (1..N). Sekarang bisa berubah.
+  int _levelTerbuka = 1;
 
   static const List<_QuizGroup> _groups = [
     _QuizGroup(
@@ -42,13 +51,27 @@ class QuizLevelsScreen extends StatelessWidget {
     ),
   ];
 
-  void _onLevelTap(BuildContext context, int level) {
-    final terbuka = level <= _levelTerbuka;
-    final pesan = terbuka
-        ? 'Kuis level $level segera hadir'
-        : 'Selesaikan level sebelumnya dulu ya';
-    // kalau terbuka, Navigator.push ke layar soal kuis
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(pesan)));
+  Future<void> _onLevelTap(int level) async {
+    if (level > _levelTerbuka) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Selesaikan level sebelumnya dulu ya')),
+      );
+      return;
+    }
+
+    // Tunggu hasil dari layar kuis (true = level selesai)
+    final selesai = await Navigator.push<bool>(
+      context,
+      MaterialPageRoute(builder: (_) => KuisIntroScreen(level: level)),
+    );
+
+    // Kalau yang baru selesai adalah level tertinggi, buka level berikutnya
+    if (selesai == true &&
+        mounted &&
+        level == _levelTerbuka &&
+        level < _jumlahLevel) {
+      setState(() => _levelTerbuka = level + 1);
+    }
   }
 
   @override
@@ -83,7 +106,7 @@ class QuizLevelsScreen extends StatelessWidget {
                     child: Text(
                       'Kuis',
                       style: TextStyle(
-                        fontSize: 22,
+                        fontSize: 25,
                         fontWeight: FontWeight.w800,
                         color: _purple,
                       ),
@@ -120,7 +143,7 @@ class QuizLevelsScreen extends StatelessWidget {
               const Text(
                 'Huruf sambung: 10 level, 1 soal tiap level',
                 style: TextStyle(
-                  fontSize: 17,
+                  fontSize: 15,
                   fontWeight: FontWeight.w800,
                   color: _navy,
                 ),
@@ -132,7 +155,7 @@ class QuizLevelsScreen extends StatelessWidget {
                 _GroupSection(
                   group: g,
                   levelTerbuka: _levelTerbuka,
-                  onLevelTap: (level) => _onLevelTap(context, level),
+                  onLevelTap: _onLevelTap,
                 ),
                 const SizedBox(height: 18),
               ],
@@ -176,28 +199,33 @@ class _GroupSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Label kelompok
+        // Label kelompok (Bentuk awal, Bentuk tengah, dst.)
         Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           decoration: BoxDecoration(
             color: group.color,
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: BorderRadius.circular(18),
           ),
           child: Text(
             group.label,
             style: const TextStyle(
-              fontSize: 15,
+              fontSize: 14,
               fontWeight: FontWeight.w800,
               color: Colors.white,
             ),
           ),
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 10),
+        // Keterangan di atas kartu level
         Text(
           group.caption,
-          style: const TextStyle(fontSize: 15, color: _navy),
+          style: const TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+            color: _navy,
+          ),
         ),
-        const SizedBox(height: 10),
+        const SizedBox(height: 12),
 
         // Kartu level
         Row(
@@ -209,7 +237,6 @@ class _GroupSection extends StatelessWidget {
                   level: group.levels[i],
                   color: group.color,
                   terbuka: group.levels[i] <= levelTerbuka,
-                  aktif: group.levels[i] == levelTerbuka,
                   onTap: () => onLevelTap(group.levels[i]),
                 ),
               ),
@@ -225,23 +252,23 @@ class _LevelCard extends StatelessWidget {
   final int level;
   final Color color;
   final bool terbuka;
-  final bool aktif; // level yang sedang dikerjakan: berwarna penuh
   final VoidCallback onTap;
 
   const _LevelCard({
     required this.level,
     required this.color,
     required this.terbuka,
-    required this.aktif,
     required this.onTap,
   });
 
   static const Color _navy = Color(0xFF2A1B6B);
+  static const Color _lockIcon = Color(0xFF9AA0A6);
 
   @override
   Widget build(BuildContext context) {
-    final bg = aktif ? color : Colors.white;
-    final textColor = aktif ? Colors.white : _navy;
+    // Terbuka: warna kelompok, teks putih. Terkunci: putih, teks navy.
+    final bg = terbuka ? color : Colors.white;
+    final textColor = terbuka ? Colors.white : _navy;
 
     return Material(
       color: bg,
@@ -257,7 +284,7 @@ class _LevelCard extends StatelessWidget {
               Text(
                 'Level',
                 style: TextStyle(
-                  fontSize: 10,
+                  fontSize: 13,
                   fontWeight: FontWeight.w600,
                   color: textColor,
                 ),
@@ -274,8 +301,7 @@ class _LevelCard extends StatelessWidget {
               if (!terbuka)
                 const Padding(
                   padding: EdgeInsets.only(top: 2),
-                  child: Icon(Icons.lock_rounded,
-                      size: 11, color: Color(0xFF9AA0A6)),
+                  child: Icon(Icons.lock_rounded, size: 11, color: _lockIcon),
                 ),
             ],
           ),
