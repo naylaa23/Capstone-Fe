@@ -63,12 +63,15 @@ class _LoginScreenState extends State<LoginScreen> {
     // CATATAN HOST IP:
     // 1. Android Emulator    -> 'http://10.0.2.2:3000/api'
     // 2. HP Fisik (Samsung)  -> 'http://<IP_WIFI_LAPTOP>:3000/api' (Contoh: 'http://192.168.1.15:3000/api')
-    const String baseUrl = 'http://172.23.146.26:3000/api';
+    const String baseUrl = 'https://limeade-shack-seismic.ngrok-free.dev/api';
 
     try {
       final response = await http.post(
         Uri.parse('$baseUrl/auth/login'),
-        headers: {'Content-Type': 'application/json'},
+        headers: {
+          'Content-Type': 'application/json',
+          'ngrok-skip-browser-warning': 'true', // <-- Wajib tambahkan baris ini
+        },
         body: jsonEncode({
           'email': email,
           'password': pass,
@@ -83,7 +86,7 @@ class _LoginScreenState extends State<LoginScreen> {
         setState(() => _loading = false);
 
         // Ambil nama pengguna dan token dari respon backend NestJS
-        final String userName = data['user']['fullName'] ?? 'Pengguna';
+        final String userName = data['user']?['fullName'] ?? 'Pengguna';
         // final String token = data['accessToken'] ?? '';
 
         // Pindah ke Dashboard dengan membawa nama pengguna dari database
