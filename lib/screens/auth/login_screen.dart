@@ -63,7 +63,7 @@ class _LoginScreenState extends State<LoginScreen> {
     // CATATAN HOST IP:
     // 1. Android Emulator    -> 'http://10.0.2.2:3000/api'
     // 2. HP Fisik (Samsung)  -> 'http://<IP_WIFI_LAPTOP>:3000/api' (Contoh: 'http://192.168.1.15:3000/api')
-    const String baseUrl = 'http://192.168.1.13:3000/api';
+    const String baseUrl = 'http://172.23.146.20:3000/api';
 
     try {
       final response = await http.post(
