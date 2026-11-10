@@ -1,20 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 
-import 'iqro_router.dart';
+import 'iqro_halaman_screen.dart';
+import 'iqro_kartu_screen.dart';
+import 'iqro_router_screen.dart';
 
-/// Isi satu halaman Iqro.
-class IqroHalaman {
-  final String instruksi;
-  final List<String> legend; // baris contoh di bawah instruksi
-  final List<List<String>> baris; // urutan baca: dari kanan ke kiri
-
-  const IqroHalaman({
-    required this.instruksi,
-    required this.legend,
-    required this.baris,
-  });
-}
+// Supaya file iqroN_screen.dart cukup mengimpor file ini.
+export 'iqro_halaman_screen.dart';
 
 /// Tampilan layar halaman Iqro, dipakai oleh semua halaman.
 /// [data] = null berarti isi halaman belum tersedia.
@@ -106,63 +98,10 @@ class _IqroHalamanViewState extends State<IqroHalamanView> {
           padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
           child: Column(
             children: [
-              // Header
-              Row(
-                children: [
-                  Material(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(12),
-                    child: InkWell(
-                      borderRadius: BorderRadius.circular(12),
-                      onTap: () => Navigator.maybePop(context),
-                      child: const SizedBox(
-                        width: 44,
-                        height: 44,
-                        child:
-                            Icon(Icons.chevron_left, size: 26, color: _navy),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 14),
-                  Expanded(
-                    child: Text(
-                      'Jilid ${widget.jilid} · Halaman ${widget.halaman}',
-                      style: const TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w800,
-                        color: _purple,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+              _header(),
               const SizedBox(height: 14),
-
-              // Dengar bacaan
-              SizedBox(
-                width: double.infinity,
-                height: 46,
-                child: ElevatedButton.icon(
-                  onPressed: widget.data == null ? null : _dengar,
-                  icon: const Icon(Icons.music_note_rounded, size: 18),
-                  label: const Text(
-                    'Dengar bacaan',
-                    style: TextStyle(fontSize: 13, fontWeight: FontWeight.w800),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: _blue,
-                    foregroundColor: Colors.white,
-                    disabledBackgroundColor: _blue.withOpacity(0.45),
-                    disabledForegroundColor: Colors.white70,
-                    elevation: 0,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                  ),
-                ),
-              ),
+              _tombolDengarBacaan(),
               const SizedBox(height: 10),
-
               Text(
                 'Halaman ${widget.halaman} dari ${widget.totalHalaman}',
                 style: const TextStyle(
@@ -172,66 +111,99 @@ class _IqroHalamanViewState extends State<IqroHalamanView> {
                 ),
               ),
               const SizedBox(height: 8),
-
-              // Kartu halaman Iqro
-              Expanded(child: _kartuHalaman()),
+              Expanded(child: IqroKartu(data: widget.data)),
               const SizedBox(height: 12),
-
-              // Sebelumnya, Dengar, Berikutnya
-              Row(
-                children: [
-                  _tombol(
-                    'Sebelumnya',
-                    _yellow,
-                    _navy,
-                    _adaSebelumnya ? () => _pindah(-1) : null,
-                  ),
-                  const SizedBox(width: 10),
-                  _tombol(
-                    'Dengar',
-                    _purple,
-                    Colors.white,
-                    widget.data == null ? null : _dengar,
-                  ),
-                  const SizedBox(width: 10),
-                  _tombol(
-                    'Berikutnya',
-                    _yellow,
-                    _navy,
-                    _adaBerikutnya ? () => _pindah(1) : null,
-                  ),
-                ],
-              ),
+              _navigasi(),
               const SizedBox(height: 10),
-
-              // Tandai selesai
-              SizedBox(
-                width: double.infinity,
-                height: 50,
-                child: ElevatedButton(
-                  onPressed: _tandaiSelesai,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor:
-                        _selesai ? const Color(0xFF168A3C) : _green,
-                    foregroundColor: Colors.white,
-                    elevation: 0,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                  ),
-                  child: Text(
-                    _selesai ? 'Sudah selesai ✓' : 'Tandai selesai',
-                    style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w800,
-                    ),
-                  ),
-                ),
-              ),
+              _tombolSelesai(),
             ],
           ),
         ),
       ),
+    );
+  }
+
+  Widget _header() {
+    return Row(
+      children: [
+        Material(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(12),
+            onTap: () => Navigator.maybePop(context),
+            child: const SizedBox(
+              width: 44,
+              height: 44,
+              child: Icon(Icons.chevron_left, size: 26, color: _navy),
+            ),
+          ),
+        ),
+        const SizedBox(width: 14),
+        Expanded(
+          child: Text(
+            'Jilid ${widget.jilid} · Halaman ${widget.halaman}',
+            style: const TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.w800,
+              color: _purple,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _tombolDengarBacaan() {
+    return SizedBox(
+      width: double.infinity,
+      height: 46,
+      child: ElevatedButton.icon(
+        onPressed: widget.data == null ? null : _dengar,
+        icon: const Icon(Icons.music_note_rounded, size: 18),
+        label: const Text(
+          'Dengar bacaan',
+          style: TextStyle(fontSize: 13, fontWeight: FontWeight.w800),
+        ),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: _blue,
+          foregroundColor: Colors.white,
+          disabledBackgroundColor: _blue.withOpacity(0.45),
+          disabledForegroundColor: Colors.white70,
+          elevation: 0,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
+          ),
+        ),
+      ),
+    );
+  }
+
+  // Sebelumnya, Dengar, Berikutnya
+  Widget _navigasi() {
+    return Row(
+      children: [
+        _tombol(
+          'Sebelumnya',
+          _yellow,
+          _navy,
+          _adaSebelumnya ? () => _pindah(-1) : null,
+        ),
+        const SizedBox(width: 10),
+        _tombol(
+          'Dengar',
+          _purple,
+          Colors.white,
+          widget.data == null ? null : _dengar,
+        ),
+        const SizedBox(width: 10),
+        _tombol(
+          'Berikutnya',
+          _yellow,
+          _navy,
+          _adaBerikutnya ? () => _pindah(1) : null,
+        ),
+      ],
     );
   }
 
@@ -261,132 +233,23 @@ class _IqroHalamanViewState extends State<IqroHalamanView> {
     );
   }
 
-  // Kartu berbingkai ungu: instruksi, contoh, dan kotak bacaan
-  Widget _kartuHalaman() {
-    final d = widget.data;
-
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: _purple, width: 2),
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(12),
-        child: d == null
-            ? const Center(
-                child: Padding(
-                  padding: EdgeInsets.all(24),
-                  child: Text(
-                    'Isi halaman ini belum tersedia',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w700,
-                      color: _navy,
-                    ),
-                  ),
-                ),
-              )
-            : Column(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(12, 10, 12, 8),
-                    child: Text(
-                      d.instruksi,
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        fontSize: 10.5,
-                        height: 1.35,
-                        fontWeight: FontWeight.w800,
-                        color: _navy,
-                      ),
-                    ),
-                  ),
-                  const Divider(height: 1, thickness: 1.5, color: _purple),
-
-                  // Baris contoh
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 4),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        for (final t in d.legend)
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 12),
-                            child: Text(
-                              t,
-                              style: const TextStyle(
-                                fontSize: 34,
-                                height: 1.3,
-                                color: _navy,
-                              ),
-                            ),
-                          ),
-                      ],
-                    ),
-                  ),
-                  const Divider(height: 1, thickness: 1.5, color: _purple),
-
-                  // Kotak bacaan
-                  Expanded(
-                    child: Column(
-                      children: [
-                        for (int r = 0; r < d.baris.length; r++)
-                          Expanded(
-                            child: _baris(
-                              d.baris[r],
-                              garisBawah: r < d.baris.length - 1,
-                            ),
-                          ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-      ),
-    );
-  }
-
-  // Satu baris bacaan. RTL: sel pertama ada di paling kanan.
-  Widget _baris(List<String> sel, {required bool garisBawah}) {
-    final setengah = sel.length ~/ 2;
-
-    return Container(
-      decoration: BoxDecoration(
-        border: garisBawah
-            ? Border(
-                bottom: BorderSide(
-                  color: _purple.withOpacity(0.55),
-                  width: 1,
-                ),
-              )
-            : null,
-      ),
-      child: Directionality(
-        textDirection: TextDirection.rtl,
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            for (int i = 0; i < sel.length; i++) ...[
-              if (i == setengah) Container(width: 2, color: _purple),
-              Expanded(
-                child: Center(
-                  child: FittedBox(
-                    fit: BoxFit.scaleDown,
-                    child: Text(
-                      sel[i],
-                      style: const TextStyle(
-                        fontSize: 32,
-                        height: 1.3,
-                        color: _navy,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ],
+  Widget _tombolSelesai() {
+    return SizedBox(
+      width: double.infinity,
+      height: 50,
+      child: ElevatedButton(
+        onPressed: _tandaiSelesai,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: _selesai ? const Color(0xFF168A3C) : _green,
+          foregroundColor: Colors.white,
+          elevation: 0,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+        ),
+        child: Text(
+          _selesai ? 'Sudah selesai ✓' : 'Tandai selesai',
+          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w800),
         ),
       ),
     );

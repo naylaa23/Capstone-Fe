@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import '../writing/writing_home_screen.dart';
 import '../writing/kuis/kuis_level_screen.dart';
-import '../writing/membaca/iqro1_screen.dart';
-import '../writing/membaca/iqro3_screen.dart';
+import '../writing/membaca/iqro_router_screen.dart';
+import '../writing/menulis/area_menulis_screen.dart';
 
 class DashboardScreen extends StatelessWidget {
   final String nama;
@@ -80,7 +79,7 @@ class DashboardScreen extends StatelessWidget {
                         onTap: () => Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (_) => const IqroHalamanScreen(),
+                            builder: (_) => iqroHalamanScreen(1),
                           ),
                         ),
                       ),
@@ -94,7 +93,7 @@ class DashboardScreen extends StatelessWidget {
                         onTap: () => Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (_) => const WritingHomeScreen(),
+                            builder: (_) => const AreaMenulisScreen(),
                           ),
                         ),
                       ),
