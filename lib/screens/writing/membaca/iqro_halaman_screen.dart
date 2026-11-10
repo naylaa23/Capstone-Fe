@@ -10,11 +10,16 @@ class IqroHalaman {
   /// false = tidak ada garis antar huruf dan antar baris.
   final bool tampilkanGaris;
 
+  /// Nomor baris (mulai dari 0, termasuk baris judul) yang tidak punya
+  /// garis tengah. Contoh: {6, 7} = dua baris terakhir tanpa garis tengah.
+  final Set<int> barisTanpaPembagi;
+
   const IqroHalaman({
     required this.instruksi,
     required this.legend,
     required this.baris,
     this.adaJudul = false,
     this.tampilkanGaris = true,
+    this.barisTanpaPembagi = const {},
   });
 }

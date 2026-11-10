@@ -105,9 +105,11 @@ class IqroKartu extends StatelessWidget {
                   child: _baris(
                     d.baris[r],
                     garisBawah: d.tampilkanGaris && r < d.baris.length - 1,
-                    // Garis tengah tidak dipakai di baris judul
-                    pakaiPembagi:
-                        d.tampilkanGaris && !(d.adaJudul && r == 0),
+                    // Garis tengah tidak dipakai di baris judul dan di
+                    // baris yang didaftarkan di barisTanpaPembagi
+                    pakaiPembagi: d.tampilkanGaris &&
+                        !(d.adaJudul && r == 0) &&
+                        !d.barisTanpaPembagi.contains(r),
                   ),
                 ),
             ],
