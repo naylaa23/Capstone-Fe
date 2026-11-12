@@ -9,16 +9,18 @@ class Iqro20Screen extends StatelessWidget {
     instruksi: '',
     legend: [],
     adaJudul: true, // baris pertama = judul, tanpa garis tengah
+    hurufPerBalok: 3,
     // Tiga baris terakhir (deretan huruf berurutan) tanpa garis tengah
     barisTanpaPembagi: {5, 6, 7},
     baris: [
       // 0: baris judul (urutan baca dari kanan: fa, qaf)
       ['فَ', 'قَ'],
-      // 1-4: baris isi dengan garis tengah, dibaca dari kanan ke kiri
-      ['قَ', 'بَ', 'ضَ', 'قَ', 'طَ', 'فَ'],
-      ['ثَ', 'عَ', 'ظَ', 'فَ', 'قَ', 'سَ'],
-      ['حَ', 'ذَ', 'خَ', 'قَ', 'صَ', 'عَ'],
-      ['ضَ', 'غَ', 'شَ', 'فَ', 'عَ', 'قَ'],
+      // 1-4: tiga balok x tiga huruf, dibaca dari kanan ke kiri.
+      // Urutan tiap baris: balok kanan, balok tengah, balok kiri.
+      ['قَ', 'بَ', 'ضَ', 'قَ', 'طَ', 'فَ', 'فَ', 'رَ', 'قَ'],
+      ['ثَ', 'غَ', 'ظَ', 'فَ', 'قَ', 'ظَ', 'سَ', 'عَ', 'فَ'],
+      ['حَ', 'ذَ', 'خَ', 'قَ', 'فَ', 'صَ', 'عَ', 'قَ', 'دَ'],
+      ['ضَ', 'غَ', 'طَ', 'شَ', 'فَ', 'عَ', 'زَ', 'قَ', 'قَ'],
       // 5: deretan huruf berurutan, satu baris utuh tanpa garis tengah
       ['اَ', 'بَ', 'تَ', 'ثَ', 'جَ', 'حَ', 'خَ', 'دَ', 'ذَ'],
       // 6: deretan huruf berurutan, satu baris utuh tanpa garis tengah

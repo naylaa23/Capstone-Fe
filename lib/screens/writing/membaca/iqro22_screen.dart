@@ -9,16 +9,18 @@ class Iqro22Screen extends StatelessWidget {
     instruksi: '',
     legend: [],
     adaJudul: true, // baris pertama = judul, tanpa garis tengah
+    hurufPerBalok: 3, // garis vertikal setiap 3 huruf (3 balok per baris)
     // Tiga baris terakhir (deretan huruf berurutan) tanpa garis tengah
     barisTanpaPembagi: {5, 6, 7},
     baris: [
       // 0: baris judul
       ['لَ'],
-      // 1-4: baris isi dengan garis tengah, dibaca dari kanan ke kiri
-      ['قَ', 'لَ', 'بَ', 'جَ', 'عَ', 'لَ', 'خَ', 'طَ'],
-      ['ذَ', 'كَ', 'لَ', 'غَ', 'لَ', 'ظَ', 'قَ', 'ضَ'],
-      ['حَ', 'لَ', 'فَ', 'دَ', 'عَ', 'سَ', 'شَ', 'لَ'],
-      ['ضَ', 'رَ', 'عَ', 'زَ', 'تَ', 'كَ', 'لَ', 'لَ'],
+      // 1-4: tiga balok x tiga huruf, dibaca dari kanan ke kiri.
+      // Urutan tiap baris: balok kanan, balok tengah, balok kiri.
+      ['قَ', 'لَ', 'بَ', 'جَ', 'عَ', 'لَ', 'خَ', 'لَ', 'طَ'],
+      ['ذَ', 'كَ', 'رَ', 'غَ', 'لَ', 'ظَ', 'قَ', 'فَ', 'صَ'],
+      ['حَ', 'لَ', 'فَ', 'دَ', 'غَ', 'سَ', 'شَ', 'كَ', 'لَ'],
+      ['ضَ', 'رَ', 'عَ', 'زَ', 'تَ', 'ظَ', 'كَ', 'لَ', 'لَ'],
       // 5: deretan huruf berurutan, satu baris utuh tanpa garis tengah
       ['اَ', 'بَ', 'تَ', 'ثَ', 'جَ', 'حَ', 'خَ', 'دَ', 'ذَ'],
       // 6: deretan huruf berurutan, satu baris utuh tanpa garis tengah

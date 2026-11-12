@@ -11,8 +11,13 @@ class IqroHalaman {
   final bool tampilkanGaris;
 
   /// Nomor baris (mulai dari 0, termasuk baris judul) yang tidak punya
-  /// garis tengah. Contoh: {6, 7} = dua baris terakhir tanpa garis tengah.
+  /// garis vertikal. Contoh: {6, 7} = dua baris terakhir tanpa garis.
   final Set<int> barisTanpaPembagi;
+
+  /// Kalau diisi, garis vertikal muncul setiap N huruf.
+  /// Contoh: 3 = satu baris 9 huruf dibagi jadi 3 balok berisi 3 huruf.
+  /// Kalau kosong (null), garis hanya satu di tengah baris.
+  final int? hurufPerBalok;
 
   const IqroHalaman({
     required this.instruksi,
@@ -21,5 +26,6 @@ class IqroHalaman {
     this.adaJudul = false,
     this.tampilkanGaris = true,
     this.barisTanpaPembagi = const {},
+    this.hurufPerBalok,
   });
 }

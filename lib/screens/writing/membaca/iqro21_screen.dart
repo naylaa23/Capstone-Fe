@@ -8,22 +8,25 @@ class Iqro21Screen extends StatelessWidget {
   static const IqroHalaman _data = IqroHalaman(
     instruksi: '',
     legend: [],
-    adaJudul: true, // baris pertama = judul, tanpa garis tengah
-    // Tiga baris terakhir (deretan huruf berurutan) tanpa garis tengah
-    barisTanpaPembagi: {5, 6, 7},
+    adaJudul: true, // baris pertama = judul, tanpa garis
+    // Garis vertikal setiap 3 huruf: tiap baris bergaris jadi 3 balok
+    hurufPerBalok: 3,
+    // Baris 1 (satu baris utuh) dan baris 5-7 (deretan huruf berurutan)
+    // tanpa garis vertikal
+    barisTanpaPembagi: {1, 5, 6, 7},
     baris: [
       // 0: baris judul
       ['كَ'],
-      // 1-4: baris isi dengan garis tengah, dibaca dari kanan ke kiri
-      ['كَ', 'خَ', 'قَ', 'كَ', 'قَ', 'خَ', 'كَ', 'قَ'],
-      ['رَ', 'كَ', 'عَ', 'طَ', 'فَ', 'كَ', 'شَ', 'ضَ'],
-      ['سَ', 'غَ', 'زَ', 'كَ', 'كَ', 'فَ', 'ذَ', 'جَ'],
-      ['طَ', 'كَ', 'زَ', 'كَ', 'فَ', 'غَ', 'صَ', 'دَ'],
-      // 5: deretan huruf berurutan, satu baris utuh tanpa garis tengah
+      // 1: satu baris utuh (8 huruf), tanpa garis vertikal
+      ['كَ', 'قَ', 'كَ', 'خَ', 'قَ', 'خَ', 'كَ', 'قَ'],
+      // 2-4: baris bergaris, semuanya 9 huruf = 3 balok x 3 huruf.
+      // Dibaca dari kanan ke kiri: balok kanan, tengah, kiri.
+      ['ضَ', 'حَ', 'كَ', 'عَ', 'طَ', 'فَ', 'شَ', 'كَ', 'رَ'],
+      ['جَ', 'كَ', 'تَ', 'قَ', 'كَ', 'فَ', 'ذَ', 'غَ', 'سَ'],
+      ['صَ', 'دَ', 'ثَ', 'غَ', 'فَ', 'كَ', 'زَ', 'كَ', 'طَ'],
+      // 5-7: deretan huruf berurutan, tanpa garis vertikal
       ['اَ', 'بَ', 'تَ', 'ثَ', 'جَ', 'حَ', 'خَ', 'دَ', 'ذَ'],
-      // 6: deretan huruf berurutan, satu baris utuh tanpa garis tengah
       ['رَ', 'زَ', 'سَ', 'شَ', 'صَ', 'ضَ', 'طَ', 'ظَ'],
-      // 7: deretan huruf berurutan, satu baris utuh tanpa garis tengah
       ['عَ', 'غَ', 'فَ', 'قَ', 'كَ'],
     ],
   );

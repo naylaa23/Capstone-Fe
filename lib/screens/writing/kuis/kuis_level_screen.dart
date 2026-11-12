@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 import 'kuis_intro_screen.dart';
 
 class QuizLevelsScreen extends StatefulWidget {
@@ -20,8 +22,9 @@ class _QuizLevelsScreenState extends State<QuizLevelsScreen> {
   // Data contoh (ganti dari ProgressProvider nanti)
   static const int _jumlahBintang = 12;
   static const int _jumlahLevel = 10;
+  static const String _kunciProgress = 'kuis_level_terbuka';
 
-  // Level tertinggi yang sudah terbuka (1..N). Sekarang bisa berubah.
+  // Level tertinggi yang sudah terbuka (1..N). Dimuat dari penyimpanan.
   int _levelTerbuka = 1;
 
   static const List<_QuizGroup> _groups = [
@@ -51,6 +54,24 @@ class _QuizLevelsScreenState extends State<QuizLevelsScreen> {
     ),
   ];
 
+  @override
+  void initState() {
+    super.initState();
+    _muatProgress();
+  }
+
+  Future<void> _muatProgress() async {
+    final prefs = await SharedPreferences.getInstance();
+    final tersimpan = prefs.getInt(_kunciProgress) ?? 1;
+    if (!mounted) return;
+    setState(() => _levelTerbuka = tersimpan.clamp(1, _jumlahLevel));
+  }
+
+  Future<void> _simpanProgress(int level) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt(_kunciProgress, level);
+  }
+
   Future<void> _onLevelTap(int level) async {
     if (level > _levelTerbuka) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -65,12 +86,18 @@ class _QuizLevelsScreenState extends State<QuizLevelsScreen> {
       MaterialPageRoute(builder: (_) => KuisIntroScreen(level: level)),
     );
 
+    // Untuk pengecekan: lihat nilainya di tab Debug Console.
+    // true = sinyal selesai sampai; null/false = tidak sampai.
+    debugPrint('KUIS: level $level kembali dengan hasil = $selesai');
+
     // Kalau yang baru selesai adalah level tertinggi, buka level berikutnya
     if (selesai == true &&
         mounted &&
         level == _levelTerbuka &&
         level < _jumlahLevel) {
-      setState(() => _levelTerbuka = level + 1);
+      final berikutnya = level + 1;
+      setState(() => _levelTerbuka = berikutnya);
+      await _simpanProgress(berikutnya);
     }
   }
 

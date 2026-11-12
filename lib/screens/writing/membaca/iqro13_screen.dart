@@ -8,18 +8,23 @@ class Iqro13Screen extends StatelessWidget {
   static const IqroHalaman _data = IqroHalaman(
     instruksi: '',
     legend: [],
-    adaJudul: true, // baris pertama = judul, tanpa garis tengah
+    adaJudul: true, // baris pertama = judul, tanpa garis
+    // Garis vertikal setiap 3 huruf: tiap baris jadi 3 balok
+    hurufPerBalok: 3,
     baris: [
-      // Baris judul
+      // 0: baris judul
       ['صَ'],
-      // Baris isi: dibaca dari kanan ke kiri
-      ['صَ', 'اَ', 'شَ', 'صَ', 'زَ', 'سَ', 'رَ', 'صَ'],
-      ['صَ', 'ثَ', 'ذَ', 'سَ', 'شَ', 'صَ', 'رَ', 'تَ'],
-      ['سَ', 'خَ', 'صَ', 'حَ', 'دَ', 'ذَ', 'زَ', 'صَ'],
-      ['حَ', 'ذَ', 'رَ', 'شَ', 'بَ', 'صَ', 'سَ', 'جَ'],
-      ['صَ', 'دَ', 'خَ', 'حَ', 'صَ', 'ذَ', 'زَ', 'رَ'],
-      ['خَ', 'صَ', 'ثَ', 'تَ', 'بَ', 'اَ', 'حَ', 'جَ'],
-      ['خَ', 'دَ', 'ذَ', 'رَ', 'زَ', 'سَ', 'شَ', 'صَ'],
+      // 1-6: baris isi, semuanya 9 huruf = 3 balok x 3 huruf.
+      // Dibaca dari kanan ke kiri: balok kanan, tengah, kiri.
+      ['صَ', 'اَ', 'شَ', 'صَ', 'شَ', 'زَ', 'سَ', 'رَ', 'صَ'],
+      ['صَ', 'ثَ', 'ذَ', 'صَ', 'سَ', 'دَ', 'شَ', 'رَ', 'تَ'],
+      ['صَ', 'زَ', 'ذَ', 'دَ', 'صَ', 'حَ', 'صَ', 'خَ', 'سَ'],
+      ['زَ', 'جَ', 'سَ', 'صَ', 'بَ', 'شَ', 'رَ', 'ذَ', 'حَ'],
+      ['زَ', 'رَ', 'شَ', 'ذَ', 'جَ', 'صَ', 'خَ', 'دَ', 'صَ'],
+      ['صَ', 'خَ', 'ثَ', 'اَ', 'بَ', 'تَ', 'ثَ', 'جَ', 'حَ'],
+      // 7: deretan huruf berurutan (8 huruf). Sel kosong di ujung kiri
+      // supaya garis vertikalnya sejajar dengan baris lain.
+      ['خَ', 'دَ', 'ذَ', 'رَ', 'زَ', 'سَ', 'شَ', 'صَ', ''],
     ],
   );
 

@@ -9,17 +9,21 @@ class Iqro5Screen extends StatelessWidget {
     instruksi: '',
     legend: [],
     adaJudul: true, // baris pertama = judul, tanpa garis tengah
+    // Baris paling bawah (deretan huruf berurutan) tanpa garis tengah
+    barisTanpaPembagi: {7},
     baris: [
-      // Baris judul
-      ['جِ'],
-      // Baris isi: dibaca dari kanan ke kiri
-      ['جِ', 'حِ', 'ثِ', 'جِ', 'حِ', 'اِ'],
-      ['حِ', 'جِ', 'بِ', 'ثِ', 'اِ', 'جِ'],
-      ['ثِ', 'اِ', 'جِ', 'حِ', 'بِ', 'تِ'],
-      ['جِ', 'بِ', 'حِ', 'اِ', 'ثِ', 'جِ'],
-      ['اِ', 'حِ', 'تِ', 'جِ', 'ثِ', 'حِ'],
-      ['بِ', 'جِ', 'اِ', 'حِ', 'جِ', 'ثِ'],
-      ['حِ', 'ثِ', 'جِ', 'بِ', 'اِ', 'تِ'],
+      // 0: baris judul (urutan baca dari kanan: ja, ha)
+      ['جَ','حَ'],
+      // 1-6: baris isi dengan garis tengah (semuanya 6 huruf),
+      // dibaca dari kanan ke kiri
+      ['جَ', 'اَ', 'حَ', 'جَ', 'حَ', 'ثَ'],
+      ['حَ', 'جَ', 'تَ', 'بَ', 'حَ', 'ثَ'],
+      ['جَ', 'حَ', 'تَ', 'اَ', 'حَ', 'بَ'],
+      ['جَ', 'اَ', 'ثَ', 'حَ', 'اَ', 'حَ'],
+      ['ثَ', 'حَ', 'بَ', 'تَ', 'اَ', 'حَ'],
+      ['اَ', 'جَ', 'جَ', 'اَ', 'حَ', 'حَ'],
+      // 7: deretan huruf berurutan, satu baris utuh tanpa garis tengah
+      ['اَ', 'بَ', 'تَ', 'ثَ', 'جَ', 'حَ'],
     ],
   );
 

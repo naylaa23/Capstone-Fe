@@ -9,6 +9,7 @@ class Iqro9Screen extends StatelessWidget {
     instruksi: '',
     legend: [],
     adaJudul: true, // baris pertama = judul, tanpa garis tengah
+    barisTanpaPembagi: {7}, // baris ke-9 (paling bawah) tanpa garis tengah
     baris: [
       // Baris judul
       ['رَ'],

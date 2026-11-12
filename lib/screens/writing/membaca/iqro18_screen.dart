@@ -8,22 +8,22 @@ class Iqro18Screen extends StatelessWidget {
   static const IqroHalaman _data = IqroHalaman(
     instruksi: '',
     legend: [],
-    adaJudul: true, // baris pertama = judul, tanpa garis tengah
-    // Dua baris terakhir (deretan huruf berurutan) tanpa garis tengah
+    adaJudul: true, // baris pertama = judul, tanpa garis
+    hurufPerBalok: 3, // garis vertikal setiap 3 huruf = 3 balok
+    // Dua baris terakhir (deretan huruf berurutan) tanpa garis vertikal
     barisTanpaPembagi: {6, 7},
     baris: [
       // 0: baris judul (urutan baca dari kanan: ain, ghain)
       ['عَ', 'غَ'],
-      // 1-5: baris isi dengan garis tengah, dibaca dari kanan ke kiri
-      ['غَ', 'اَ', 'عَ', 'دَ', 'غَ', 'عَ'],
-      ['ثَ', 'عَ', 'غَ', 'سَ', 'عَ', 'شَ'],
-      ['حَ', 'عَ', 'رَ', 'غَ', 'صَ', 'عَ'],
-      ['عَ', 'ظَ', 'غَ', 'ذَ', 'تَ', 'عَ'],
-      ['غَ', 'ضَ', 'عَ', 'بَ', 'غَ', 'ضَ'],
-      // 6: deretan huruf berurutan, satu baris utuh tanpa garis tengah
-      ['اَ', 'بَ', 'تَ', 'ثَ', 'جَ', 'حَ', 'خَ', 'دَ', 'ذَ'],
-      // 7: deretan huruf berurutan, satu baris utuh tanpa garis tengah
-      ['رَ', 'زَ', 'سَ', 'شَ', 'صَ', 'ضَ', 'طَ', 'ظَ', 'عَ', 'غَ'],
+      // 1-5: baris isi, semuanya 9 huruf = 3 balok x 3 huruf
+      ['غَ', 'اَ', 'عَ', 'دَ', 'غَ', 'ظَ', 'عَ', 'طَ', 'غَ'],
+      ['ثَ', 'عَ', 'ظَ', 'جَ', 'غَ', 'ظَ', 'سَ', 'طَ', 'عَ'],
+      ['حَ', 'رَ', 'ظَ', 'شَ', 'غَ', 'طَ', 'صَ', 'رَ', 'عَ'],
+      ['زَ', 'خَ', 'ظَ', 'ذَ', 'عَ', 'ضَ', 'تَ', 'غَ', 'صَ'],
+      ['شَ', 'رَ', 'ظَ', 'طَ', 'عَ', 'ظَ', 'بَ', 'غَ', 'صَ'],
+      // 6-7: deretan huruf berurutan, tanpa garis vertikal
+      ['اَ', 'بَ', 'تَ', 'ثَ', 'جَ', 'حَ', 'خَ', 'دَ', 'ذَ', 'رَ', 'زَ'],
+      ['سَ', 'شَ', 'صَ', 'ضَ', 'طَ', 'ظَ', 'عَ', 'غَ'],
     ],
   );
 

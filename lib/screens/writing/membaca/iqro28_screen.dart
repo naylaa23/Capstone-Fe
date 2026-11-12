@@ -9,6 +9,7 @@ class Iqro28Screen extends StatelessWidget {
     instruksi: '',
     legend: [],
     // Baris 0 (persamaan huruf) tanpa garis tengah
+    hurufPerBalok: 3,
     barisTanpaPembagi: {0},
     baris: [
       // 0: persamaan huruf, dibaca dari kanan ke kiri

@@ -105,11 +105,12 @@ class IqroKartu extends StatelessWidget {
                   child: _baris(
                     d.baris[r],
                     garisBawah: d.tampilkanGaris && r < d.baris.length - 1,
-                    // Garis tengah tidak dipakai di baris judul dan di
+                    // Garis vertikal tidak dipakai di baris judul dan di
                     // baris yang didaftarkan di barisTanpaPembagi
                     pakaiPembagi: d.tampilkanGaris &&
                         !(d.adaJudul && r == 0) &&
                         !d.barisTanpaPembagi.contains(r),
+                    hurufPerBalok: d.hurufPerBalok,
                   ),
                 ),
             ],
@@ -124,8 +125,16 @@ class IqroKartu extends StatelessWidget {
     List<String> sel, {
     required bool garisBawah,
     required bool pakaiPembagi,
+    required int? hurufPerBalok,
   }) {
     final setengah = sel.length ~/ 2;
+
+    // Apakah ada garis vertikal sebelum sel ke-i?
+    bool adaGarisSebelum(int i) {
+      if (!pakaiPembagi || i == 0) return false;
+      if (hurufPerBalok != null) return i % hurufPerBalok == 0;
+      return i == setengah;
+    }
 
     return Container(
       decoration: BoxDecoration(
@@ -144,8 +153,7 @@ class IqroKartu extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             for (int i = 0; i < sel.length; i++) ...[
-              if (pakaiPembagi && i == setengah)
-                Container(width: 2, color: _purple),
+              if (adaGarisSebelum(i)) Container(width: 2, color: _purple),
               Expanded(
                 child: Center(
                   child: FittedBox(

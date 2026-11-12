@@ -1,14 +1,6 @@
 import 'package:flutter/material.dart';
-import 'kuis_level1_screen.dart';
-import 'kuis_level2_screen.dart';
-import 'kuis_level3_screen.dart';
-import 'kuis_level4_screen.dart';
-import 'kuis_level5_screen.dart';
-import 'kuis_level6_screen.dart';
-import 'kuis_level7_screen.dart';
-import 'kuis_level8_screen.dart';
-import 'kuis_level9_screen.dart';
-import 'kuis_level10_screen.dart';
+
+import 'kuis_router_screen.dart';
 
 class KuisIntroScreen extends StatelessWidget {
   final int level;
@@ -24,47 +16,14 @@ class KuisIntroScreen extends StatelessWidget {
   static const Color _pink = Color(0xFFFF8DB8);
 
   Future<void> _mulai(BuildContext context) async {
-    // Tiap level punya file layar sendiri. Level yang belum dibuat
-    // masih menampilkan pesan "segera hadir".
-    Widget? layar;
-    if (level == 1) {
-      layar = const KuisLevel1Screen();
-    } else if (level == 2) {
-      layar = const KuisLevel2Screen();
-    } else if (level == 3) {
-      layar = const KuisLevel3Screen();
-    } else if (level == 4) {
-      layar = const KuisLevel4Screen();
-    } else if (level == 5) {
-      layar = const KuisLevel5Screen();
-    } else if (level == 6) {
-      layar = const KuisLevel6Screen();
-    } else if (level == 7) {
-      layar = const KuisLevel7Screen();
-    } else if (level == 8) {
-      layar = const KuisLevel8Screen();
-    } else if (level == 9) {
-      layar = const KuisLevel9Screen();
-    } else if (level == 10) {
-      layar = const KuisLevel10Screen();
-    }
-    // Tambahkan level berikutnya di sini, contoh:
-    // else if (level == 3) { layar = const KuisLevel3Screen(); }
-
-    if (layar == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Soal kuis level $level segera hadir')),
-      );
-      return;
-    }
-
+    // Layar soal dipilih oleh router. Tunggu hasilnya:
+    // true = anak menekan "Selesai" di layar soal.
     final selesai = await Navigator.push<bool>(
       context,
-      MaterialPageRoute(builder: (_) => layar!),
+      MaterialPageRoute(builder: (_) => kuisLevelScreen(level)),
     );
 
-    // Layar kuis mengirim true saat anak menekan "Selesai":
-    // tutup layar pembuka ini juga supaya kembali ke peta level.
+    // Teruskan sinyal selesai ke peta level, lalu tutup layar pembuka ini.
     if (selesai == true && context.mounted) {
       Navigator.pop(context, true);
     }

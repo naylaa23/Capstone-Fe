@@ -29,6 +29,8 @@ import 'iqro26_screen.dart';
 import 'iqro27_screen.dart';
 import 'iqro28_screen.dart';
 import 'iqro29_screen.dart';
+import 'iqro30_screen.dart';
+import 'iqro31_screen.dart';
 import 'iqro_base_screen.dart';
 
 /// Memilih layar halaman Iqro Jilid 1 sesuai nomor halaman.
@@ -93,6 +95,10 @@ Widget iqroHalamanScreen(int halaman) {
       return const Iqro28Screen();
     case 29:
       return const Iqro29Screen();
+    case 30:
+      return const Iqro30Screen();
+    case 31:
+      return const Iqro31Screen();
     default:
       return IqroHalamanView(halaman: halaman, data: null);
   }

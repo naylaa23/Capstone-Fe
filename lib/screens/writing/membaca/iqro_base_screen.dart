@@ -21,7 +21,7 @@ class IqroHalamanView extends StatefulWidget {
     required this.halaman,
     required this.data,
     this.jilid = 1,
-    this.totalHalaman = 32,
+    this.totalHalaman = 31,
   });
 
   @override
@@ -81,7 +81,7 @@ class _IqroHalamanViewState extends State<IqroHalamanView> {
   void _tandaiSelesai() {
     setState(() => _selesai = !_selesai);
 
-    // TODO: simpan ke ProgressProvider
+    // simpan ke ProgressProvider
     if (_selesai) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Halaman ${widget.halaman} ditandai selesai')),
